@@ -1,0 +1,78 @@
+<div class="course-detail">
+  @if (error()) {
+    <div class="error-message">
+      <p>{{ error() }}</p>
+      <button type="button" (click)="goBack()">Voltar</button>
+    </div>
+  } @else if (isLoading()) {
+    <div class="loading">
+      <p>Carregando curso...</p>
+    </div>
+  } @else if (course()) {
+    <div class="course-header">
+      <button type="button" class="back-button" (click)="goBack()">
+        ← Voltar
+      </button>
+
+      @if (course()!.coverImageUrl) {
+        <div class="course-cover">
+          <img [src]="course()!.coverImageUrl" [alt]="course()!.title" />
+        </div>
+      }
+
+      <div class="course-info">
+        <div class="course-meta">
+          <span class="badge" [class]="getLevelBadgeClass(course()!.level)">
+            {{ getLevelText(course()!.level) }}
+          </span>
+          <span class="duration">{{ course()!.durationHours }} horas</span>
+          <span class="status">{{ course()!.status }}</span>
+        </div>
+
+        <h1 class="course-title">{{ course()!.title }}</h1>
+        <p class="course-description">{{ course()!.description }}</p>
+
+        <div class="course-actions">
+          <button type="button" class="primary-button">Começar Curso</button>
+          <button type="button" class="secondary-button">
+            Adicionar aos Favoritos
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="course-content">
+      <div class="content-section">
+        <h2>Sobre o Curso</h2>
+        <p>{{ course()!.description }}</p>
+      </div>
+
+      <div class="content-section">
+        <h2>Informações</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Nível:</strong>
+            <span>{{ getLevelText(course()!.level) }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Duração:</strong>
+            <span>{{ course()!.durationHours }} horas</span>
+          </div>
+          <div class="info-item">
+            <strong>Status:</strong>
+            <span>{{ course()!.status }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Criado em:</strong>
+            <span>{{ course()!.createdAt | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <p>Curso não encontrado.</p>
+      <button type="button" (click)="goBack()">Voltar</button>
+    </div>
+  }
+</div>

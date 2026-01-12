@@ -1,0 +1,23 @@
+<div class="course-card">
+  @if (course().coverImageUrl) {
+    <div class="course-image">
+      <img [src]="course().coverImageUrl" [alt]="course().title" />
+    </div>
+  }
+
+  <div class="course-content">
+    <div class="course-header">
+      <span class="badge" [class]="getLevelBadgeClass(course().level)">
+        {{ getLevelText(course().level) }}
+      </span>
+      <span class="duration">{{ course().durationHours }}h</span>
+    </div>
+
+    <h3 class="course-title">{{ course().title }}</h3>
+    <p class="course-description">{{ course().description }}</p>
+
+    <div class="course-footer">
+      <a [routerLink]="getDetailRoute()" class="view-button"> Ver detalhes </a>
+    </div>
+  </div>
+</div>

@@ -9,7 +9,8 @@
     "baseUrl": ".",
     "paths": {
       "@estuday/shared": ["libs/shared/src/index.ts"],
-      "@estuday/auth": ["libs/auth/src/index.ts"]
+      "@estuday/auth": ["libs/auth/src/index.ts"],
+      "@estuday/courses": ["libs/courses/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
