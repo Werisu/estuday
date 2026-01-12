@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { authGuard, studentGuard } from '@estuday/auth';
 
 /**
  * Rotas principais do aplicativo web-student.
@@ -6,9 +7,14 @@ import { Route } from '@angular/router';
  */
 export const appRoutes: Route[] = [
   {
+    path: 'login',
+    loadComponent: () => import('@estuday/auth').then((m) => m.LoginComponent),
+  },
+  {
     path: '',
     loadComponent: () =>
       import('./layout/layout.component').then((m) => m.LayoutComponent),
+    canActivate: [authGuard, studentGuard],
     children: [
       {
         path: '',
@@ -18,9 +24,7 @@ export const appRoutes: Route[] = [
       {
         path: 'home',
         loadComponent: () =>
-          import('./features/home/home.component').then(
-            (m) => m.HomeComponent
-          ),
+          import('./features/home/home.component').then((m) => m.HomeComponent),
       },
     ],
   },

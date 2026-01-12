@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../data-access';
@@ -30,6 +30,16 @@ export class LoginComponent {
    */
   readonly errorMessage = signal<string | null>(null);
 
+  constructor() {
+    // Redireciona automaticamente se já estiver autenticado
+    effect(() => {
+      const user = this.authService.currentUser();
+      if (user) {
+        this.redirectBasedOnRole(user.role);
+      }
+    });
+  }
+
   /**
    * Manipula o submit do formulário de login.
    *
@@ -41,21 +51,28 @@ export class LoginComponent {
 
     try {
       const user = await this.authService.login(credentials);
-
-      // Redireciona baseado na role do usuário
-      if (user.role === 'ADMIN') {
-        this.router.navigate(['/dashboard']);
-      } else if (user.role === 'STUDENT') {
-        this.router.navigate(['/home']);
-      } else {
-        this.router.navigate(['/']);
-      }
+      this.redirectBasedOnRole(user.role);
     } catch (error) {
       this.errorMessage.set(
         error instanceof Error ? error.message : 'Erro ao fazer login'
       );
     } finally {
       this.isLoading.set(false);
+    }
+  }
+
+  /**
+   * Redireciona o usuário baseado na sua role.
+   *
+   * @param role - Role do usuário
+   */
+  private redirectBasedOnRole(role: string): void {
+    if (role === 'ADMIN') {
+      this.router.navigate(['/dashboard']);
+    } else if (role === 'STUDENT') {
+      this.router.navigate(['/home']);
+    } else {
+      this.router.navigate(['/']);
     }
   }
 }
