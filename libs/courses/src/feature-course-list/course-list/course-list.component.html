@@ -1,0 +1,70 @@
+<div class="course-list">
+  <div class="course-list-header">
+    <h1>Cursos Disponíveis</h1>
+    <p>Explore nossa coleção de cursos e comece a aprender hoje</p>
+  </div>
+
+  <div class="filters">
+    <div class="search-filter">
+      <input
+        type="text"
+        placeholder="Buscar cursos..."
+        [value]="searchFilter()"
+        (input)="onSearchChange($any($event.target).value)"
+        class="search-input"
+      />
+    </div>
+
+    <div class="level-filter">
+      <button
+        type="button"
+        [class.active]="levelFilter() === 'all'"
+        (click)="onLevelFilterChange('all')"
+      >
+        Todos
+      </button>
+      <button
+        type="button"
+        [class.active]="levelFilter() === 'beginner'"
+        (click)="onLevelFilterChange('beginner')"
+      >
+        Iniciante
+      </button>
+      <button
+        type="button"
+        [class.active]="levelFilter() === 'intermediate'"
+        (click)="onLevelFilterChange('intermediate')"
+      >
+        Intermediário
+      </button>
+      <button
+        type="button"
+        [class.active]="levelFilter() === 'advanced'"
+        (click)="onLevelFilterChange('advanced')"
+      >
+        Avançado
+      </button>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="error-message">
+      <p>{{ error() }}</p>
+      <button type="button" (click)="loadCourses()">Tentar novamente</button>
+    </div>
+  } @else if (isLoading()) {
+    <div class="loading">
+      <p>Carregando cursos...</p>
+    </div>
+  } @else if (filteredCourses().length === 0) {
+    <div class="empty-state">
+      <p>Nenhum curso encontrado.</p>
+    </div>
+  } @else {
+    <div class="courses-grid">
+      @for (course of filteredCourses(); track course.id) {
+        <app-course-card [course]="course" />
+      }
+    </div>
+  }
+</div>

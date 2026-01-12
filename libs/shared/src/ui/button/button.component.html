@@ -1,0 +1,6 @@
+<button [type]="type()" [disabled]="disabled()" [class]="buttonClasses">
+  <ng-content></ng-content>
+  @if (label()) {
+    {{ label() }}
+  }
+</button>

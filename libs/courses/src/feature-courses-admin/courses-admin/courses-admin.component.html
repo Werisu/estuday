@@ -1,0 +1,31 @@
+<div class="courses-admin">
+  <div class="header">
+    <h1>Gerenciar Cursos</h1>
+    <button type="button" class="create-button" (click)="createCourse()">
+      + Novo Curso
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="error-message">
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  <app-data-table
+    [data]="courses()"
+    [columns]="columns"
+    [isLoading]="isLoading()"
+    (onEdit)="editCourse($event)"
+    (onDelete)="deleteCourse($event)"
+  />
+
+  @if (courses().length > 0) {
+    <div class="actions-info">
+      <p>
+        💡 Clique em "Editar" para gerenciar módulos e aulas do curso, ou
+        crie um novo curso.
+      </p>
+    </div>
+  }
+</div>

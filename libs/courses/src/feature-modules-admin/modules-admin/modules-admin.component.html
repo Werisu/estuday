@@ -1,0 +1,41 @@
+<div class="modules-admin">
+  <div class="header">
+    <div>
+      <button type="button" class="back-button" (click)="goBack()">
+        ← Voltar
+      </button>
+      <h1>
+        Módulos do Curso:
+        @if (course()) {
+          {{ course()!.title }}
+        }
+      </h1>
+    </div>
+    <button type="button" class="create-button" (click)="createModule()">
+      + Novo Módulo
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="error-message">
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  <app-data-table
+    [data]="modules()"
+    [columns]="columns"
+    [isLoading]="isLoading()"
+    (onEdit)="editModule($event)"
+    (onDelete)="deleteModule($event)"
+  />
+
+  @if (modules().length > 0) {
+    <div class="actions-info">
+      <p>
+        💡 Clique em "Editar" para gerenciar as aulas do módulo, ou crie um
+        novo módulo.
+      </p>
+    </div>
+  }
+</div>

@@ -1,0 +1,49 @@
+<div class="data-table">
+  @if (isLoading()) {
+    <div class="loading">
+      <p>Carregando...</p>
+    </div>
+  } @else if (data().length === 0) {
+    <div class="empty-state">
+      <p>Nenhum item encontrado.</p>
+    </div>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          @for (column of columns(); track column.key) {
+            <th>{{ column.label }}</th>
+          }
+          <th class="actions-header">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of data(); track getTrackBy(item)) {
+          <tr>
+            @for (column of columns(); track column.key) {
+              <td>{{ getCellValue(item, column) }}</td>
+            }
+            <td class="actions-cell">
+              <button
+                type="button"
+                class="edit-button"
+                (click)="handleEdit(item)"
+                title="Editar"
+              >
+                Editar
+              </button>
+              <button
+                type="button"
+                class="delete-button"
+                (click)="handleDelete(item)"
+                title="Remover"
+              >
+                Remover
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

@@ -1,0 +1,35 @@
+<div class="lessons-admin">
+  <div class="header">
+    <div>
+      <button type="button" class="back-button" (click)="goBack()">
+        ← Voltar
+      </button>
+      <h1>
+        Aulas do Módulo:
+        @if (module()) {
+          {{ module()!.title }}
+        }
+      </h1>
+      @if (course()) {
+        <p class="course-info">Curso: {{ course()!.title }}</p>
+      }
+    </div>
+    <button type="button" class="create-button" (click)="createLesson()">
+      + Nova Aula
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="error-message">
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  <app-data-table
+    [data]="lessons()"
+    [columns]="columns"
+    [isLoading]="isLoading()"
+    (onEdit)="editLesson($event)"
+    (onDelete)="deleteLesson($event)"
+  />
+</div>

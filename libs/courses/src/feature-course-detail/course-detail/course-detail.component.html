@@ -1,0 +1,180 @@
+<div class="course-detail">
+  @if (error()) {
+    <div class="error-message">
+      <p>{{ error() }}</p>
+      <button type="button" (click)="goBack()">Voltar</button>
+    </div>
+  } @else if (isLoadingCourse()) {
+    <div class="loading">
+      <p>Carregando curso...</p>
+    </div>
+  } @else if (course()) {
+    <div class="course-header">
+      <button type="button" class="back-button" (click)="goBack()">
+        ← Voltar
+      </button>
+
+      @if (course()!.coverImageUrl) {
+        <div class="course-cover">
+          <img [src]="course()!.coverImageUrl" [alt]="course()!.title" />
+        </div>
+      }
+
+      <div class="course-info">
+        <div class="course-meta">
+          <span class="badge" [class]="getLevelBadgeClass(course()!.level)">
+            {{ getLevelText(course()!.level) }}
+          </span>
+          <span class="duration">{{ course()!.durationHours }} horas</span>
+          <span class="status">{{ course()!.status }}</span>
+        </div>
+
+        <h1 class="course-title">{{ course()!.title }}</h1>
+        <p class="course-description">{{ course()!.description }}</p>
+
+        <div class="course-actions">
+          <button type="button" class="primary-button">Começar Curso</button>
+          <button type="button" class="secondary-button">
+            Adicionar aos Favoritos
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="course-content">
+      <div class="content-section">
+        <h2>Sobre o Curso</h2>
+        <p>{{ course()!.description }}</p>
+      </div>
+
+      <div class="content-section">
+        <h2>Informações</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Nível:</strong>
+            <span>{{ getLevelText(course()!.level) }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Duração:</strong>
+            <span>{{ course()!.durationHours }} horas</span>
+          </div>
+          <div class="info-item">
+            <strong>Status:</strong>
+            <span>{{ course()!.status }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Criado em:</strong>
+            <span>{{ course()!.createdAt | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-section modules-section">
+        <div class="section-header">
+          <h2>Módulos e Aulas</h2>
+          @if (lessons().length > 0) {
+            <div class="progress-info">
+              <span class="progress-text">
+                Progresso: {{ getCompletedLessonsCount() }} /
+                {{ lessons().length }} aulas concluídas
+              </span>
+              <div class="progress-bar">
+                <div
+                  class="progress-fill"
+                  [style.width.%]="getCourseProgress()"
+                ></div>
+              </div>
+              <span class="progress-percentage">
+                {{ getCourseProgress() }}%
+              </span>
+            </div>
+          }
+        </div>
+
+        @if (isLoadingModules()) {
+          <div class="loading">
+            <p>Carregando módulos...</p>
+          </div>
+        } @else if (modules().length === 0) {
+          <div class="empty-state">
+            <p>Nenhum módulo disponível.</p>
+          </div>
+        } @else {
+          <div class="modules-list">
+            @for (module of modules(); track module.id) {
+              <div class="module-item">
+                <div class="module-header" (click)="toggleModule(module.id)">
+                  <div class="module-info">
+                    <h3>{{ module.title }}</h3>
+                    <p>{{ module.description }}</p>
+                    <div class="module-meta">
+                      <span
+                        >{{ getModuleLessons(module.id).length }} aulas</span
+                      >
+                      <span>{{ module.durationMinutes }} min</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    class="expand-button"
+                    [class.expanded]="isModuleExpanded(module.id)"
+                  >
+                    {{ isModuleExpanded(module.id) ? '▼' : '▶' }}
+                  </button>
+                </div>
+
+                @if (isModuleExpanded(module.id)) {
+                  <div class="lessons-list">
+                    @for (
+                      lesson of getModuleLessons(module.id);
+                      track lesson.id
+                    ) {
+                      <div
+                        class="lesson-item"
+                        [class.completed]="isLessonCompleted(lesson.id)"
+                      >
+                        <div class="lesson-info">
+                          <div class="lesson-header">
+                            <h4>{{ lesson.title }}</h4>
+                            @if (lesson.isFree) {
+                              <span class="free-badge">Gratuito</span>
+                            }
+                          </div>
+                          <p>{{ lesson.description }}</p>
+                          <div class="lesson-meta">
+                            <span>{{ lesson.durationMinutes }} min</span>
+                            <span class="content-type">{{
+                              lesson.contentType
+                            }}</span>
+                          </div>
+                        </div>
+                        <div class="lesson-actions">
+                          @if (isLessonCompleted(lesson.id)) {
+                            <span class="completed-badge">✓ Concluída</span>
+                          } @else {
+                            <button
+                              type="button"
+                              class="complete-button"
+                              (click)="completeLesson(lesson.id)"
+                            >
+                              Marcar como concluída
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <p>Curso não encontrado.</p>
+      <button type="button" (click)="goBack()">Voltar</button>
+    </div>
+  }
+</div>
