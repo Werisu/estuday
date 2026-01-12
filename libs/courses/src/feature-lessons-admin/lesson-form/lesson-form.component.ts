@@ -1,9 +1,19 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { LessonsService, ModulesService, CoursesService } from '../../data-access';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { CreateLesson, Lesson, UpdateLesson } from '@estuday/shared';
+import {
+  CoursesService,
+  LessonsService,
+  ModulesService,
+} from '../../data-access';
+import { BaseFormComponent } from '../../ui';
 
 /**
  * Componente de formulário de aula (criação e edição).
@@ -15,13 +25,52 @@ import { CreateLesson, Lesson, UpdateLesson } from '@estuday/shared';
   templateUrl: './lesson-form.component.html',
   styleUrl: './lesson-form.component.scss',
 })
-export class LessonFormComponent implements OnInit {
+export class LessonFormComponent extends BaseFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly lessonsService = inject(LessonsService);
   private readonly modulesService = inject(ModulesService);
   private readonly coursesService = inject(CoursesService);
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+
+  /**
+   * Formulário reativo de aula.
+   */
+  protected readonly form = this.fb.group({
+    title: ['', [Validators.required, Validators.minLength(3)]],
+    description: ['', [Validators.required, Validators.minLength(10)]],
+    contentType: [
+      'video' as 'video' | 'text' | 'quiz' | 'exercise' | 'document',
+      [Validators.required],
+    ],
+    contentUrl: [''],
+    textContent: [''],
+    durationMinutes: [0, [Validators.required, Validators.min(1)]],
+    order: [1, [Validators.required, Validators.min(1)]],
+    isFree: [false],
+    status: [
+      'draft' as 'draft' | 'published' | 'archived',
+      [Validators.required],
+    ],
+  });
+
+  /**
+   * Getter para compatibilidade com template.
+   */
+  get lessonForm(): FormGroup {
+    return this.form;
+  }
+
+  /**
+   * Rota para cancelamento.
+   */
+  protected get cancelRoute(): string[] {
+    const courseId = this.courseId();
+    const moduleId = this.moduleId();
+    if (courseId && moduleId) {
+      return ['/admin/courses', courseId, 'modules', moduleId, 'lessons'];
+    }
+    return ['/admin/courses'];
+  }
 
   /**
    * Signal com a aula a ser editada (null para criação).
@@ -37,24 +86,6 @@ export class LessonFormComponent implements OnInit {
    * Signal com o ID do curso.
    */
   readonly courseId = signal<string | null>(null);
-
-  /**
-   * Formulário reativo de aula.
-   */
-  readonly lessonForm = this.fb.group({
-    title: ['', [Validators.required, Validators.minLength(3)]],
-    description: ['', [Validators.required, Validators.minLength(10)]],
-    contentType: [
-      'video' as 'video' | 'text' | 'quiz' | 'exercise' | 'document',
-      [Validators.required],
-    ],
-    contentUrl: [''],
-    textContent: [''],
-    durationMinutes: [0, [Validators.required, Validators.min(1)]],
-    order: [1, [Validators.required, Validators.min(1)]],
-    isFree: [false],
-    status: ['draft' as 'draft' | 'published' | 'archived', [Validators.required]],
-  });
 
   /**
    * Indica se está processando.
@@ -78,19 +109,64 @@ export class LessonFormComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    const lessonToEdit = this.lesson();
-    if (lessonToEdit) {
-      this.lessonForm.patchValue({
-        title: lessonToEdit.title,
-        description: lessonToEdit.description,
-        contentType: lessonToEdit.contentType,
-        contentUrl: lessonToEdit.contentUrl || '',
-        textContent: lessonToEdit.textContent || '',
-        durationMinutes: lessonToEdit.durationMinutes,
-        order: lessonToEdit.order,
-        isFree: lessonToEdit.isFree,
-        status: lessonToEdit.status,
-      });
+    const courseId = this.route.snapshot.paramMap.get('courseId');
+    const moduleId = this.route.snapshot.paramMap.get('moduleId');
+    const lessonId = this.route.snapshot.paramMap.get('id');
+
+    if (courseId && moduleId) {
+      this.courseId.set(courseId);
+      this.moduleId.set(moduleId);
+    } else {
+      this.router.navigate(['/admin/courses']);
+      return;
+    }
+
+    if (lessonId) {
+      // Modo de edição - carrega a aula
+      this.loadLesson(courseId, moduleId, lessonId);
+    }
+    // Modo de criação - não precisa carregar nada
+  }
+
+  /**
+   * Carrega a aula para edição.
+   *
+   * @param courseId - ID do curso
+   * @param moduleId - ID do módulo
+   * @param lessonId - ID da aula
+   */
+  async loadLesson(
+    courseId: string,
+    moduleId: string,
+    lessonId: string,
+  ): Promise<void> {
+    try {
+      await this.coursesService.getCourseById(courseId);
+      await this.modulesService.loadModulesByCourse(courseId);
+      await this.modulesService.loadLessonsByModule(moduleId);
+
+      const lessons = this.modulesService.getLessonsByModule(moduleId);
+      const lessonToEdit = lessons.find((l) => l.id === lessonId);
+
+      if (lessonToEdit) {
+        this.lesson.set(lessonToEdit);
+        this.form.patchValue({
+          title: lessonToEdit.title,
+          description: lessonToEdit.description,
+          contentType: lessonToEdit.contentType,
+          contentUrl: lessonToEdit.contentUrl || '',
+          textContent: lessonToEdit.textContent || '',
+          durationMinutes: lessonToEdit.durationMinutes,
+          order: lessonToEdit.order,
+          isFree: lessonToEdit.isFree,
+          status: lessonToEdit.status,
+        });
+      } else {
+        this.router.navigate(this.cancelRoute);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar aula:', error);
+      this.router.navigate(this.cancelRoute);
     }
   }
 
@@ -98,13 +174,13 @@ export class LessonFormComponent implements OnInit {
    * Manipula o submit do formulário.
    */
   protected async onSubmit(): Promise<void> {
-    if (this.lessonForm.invalid) {
-      this.lessonForm.markAllAsTouched();
+    if (!this.isValid()) {
+      this.markAllAsTouched();
       return;
     }
 
     try {
-      const formValue = this.lessonForm.value;
+      const formValue = this.form.value;
       const lessonToEdit = this.lesson();
       const moduleId = this.moduleId();
       const courseId = this.courseId();
@@ -131,7 +207,7 @@ export class LessonFormComponent implements OnInit {
       } else {
         // Criação
         const createData: CreateLesson = {
-          moduleId: moduleId,
+          moduleId,
           title: formValue.title!,
           description: formValue.description!,
           contentType: formValue.contentType!,
@@ -146,78 +222,10 @@ export class LessonFormComponent implements OnInit {
         await this.lessonsService.createLesson(createData);
       }
 
-      this.router.navigate([
-        '/admin/courses',
-        courseId,
-        'modules',
-        moduleId,
-        'lessons',
-      ]);
+      this.router.navigate(this.cancelRoute);
     } catch (error) {
       console.error('Erro ao salvar aula:', error);
     }
-  }
-
-  /**
-   * Cancela e volta para a lista.
-   */
-  protected cancel(): void {
-    const courseId = this.courseId();
-    const moduleId = this.moduleId();
-    if (courseId && moduleId) {
-      this.router.navigate([
-        '/admin/courses',
-        courseId,
-        'modules',
-        moduleId,
-        'lessons',
-      ]);
-    } else {
-      this.router.navigate(['/admin/courses']);
-    }
-  }
-
-  /**
-   * Verifica se um campo tem erro.
-   *
-   * @param fieldName - Nome do campo
-   * @returns true se o campo tem erro
-   */
-  protected hasError(fieldName: string): boolean {
-    const field = this.lessonForm.get(fieldName);
-    return !!(
-      field &&
-      field.invalid &&
-      (field.touched || field.dirty)
-    );
-  }
-
-  /**
-   * Obtém mensagem de erro de um campo.
-   *
-   * @param fieldName - Nome do campo
-   * @returns Mensagem de erro ou string vazia
-   */
-  protected getErrorMessage(fieldName: string): string {
-    const field = this.lessonForm.get(fieldName);
-
-    if (!field || !field.errors) {
-      return '';
-    }
-
-    if (field.errors['required']) {
-      return 'Campo obrigatório';
-    }
-
-    if (field.errors['minlength']) {
-      return `Mínimo de ${field.errors['minlength'].requiredLength} caracteres`;
-    }
-
-    if (field.errors['min']) {
-      return `Valor mínimo: ${field.errors['min'].min}`;
-    }
-
-    return '';
   }
 
   /**
@@ -226,7 +234,7 @@ export class LessonFormComponent implements OnInit {
    * @returns true se precisa de URL
    */
   protected needsContentUrl(): boolean {
-    const contentType = this.lessonForm.get('contentType')?.value as
+    const contentType = this.form.get('contentType')?.value as
       | 'video'
       | 'text'
       | 'quiz'
@@ -247,8 +255,6 @@ export class LessonFormComponent implements OnInit {
    * @returns true se precisa de texto
    */
   protected needsTextContent(): boolean {
-    return (
-      (this.lessonForm.get('contentType')?.value as string | null) === 'text'
-    );
+    return (this.form.get('contentType')?.value as string | null) === 'text';
   }
 }

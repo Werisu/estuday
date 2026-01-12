@@ -1,9 +1,11 @@
 import { Route } from '@angular/router';
 import { authGuard, studentGuard } from '@estuday/auth';
+import { coursesRoutes } from './features/courses/courses.routes';
 
 /**
  * Rotas principais do aplicativo web-student.
  * Utiliza lazy loading para carregar features sob demanda.
+ * Guards aplicados em todas as rotas protegidas.
  */
 export const appRoutes: Route[] = [
   {
@@ -28,13 +30,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'courses',
-        loadComponent: () =>
-          import('@estuday/courses').then((m) => m.CourseListComponent),
-      },
-      {
-        path: 'courses/:id',
-        loadComponent: () =>
-          import('@estuday/courses').then((m) => m.CourseDetailComponent),
+        children: coursesRoutes,
       },
     ],
   },

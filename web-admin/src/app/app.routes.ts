@@ -1,9 +1,11 @@
 import { Route } from '@angular/router';
 import { adminGuard, authGuard } from '@estuday/auth';
+import { coursesRoutes } from './features/courses/courses.routes';
 
 /**
  * Rotas principais do aplicativo web-admin.
  * Utiliza lazy loading para carregar features sob demanda.
+ * Guards aplicados em todas as rotas protegidas.
  */
 export const appRoutes: Route[] = [
   {
@@ -30,48 +32,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'courses',
-        loadComponent: () =>
-          import('@estuday/courses').then((m) => m.CoursesAdminComponent),
-      },
-      {
-        path: 'courses/new',
-        loadComponent: () =>
-          import('@estuday/courses').then((m) => m.CourseFormComponent),
-      },
-      {
-        path: 'courses/:id/edit',
-        loadComponent: () =>
-          import('@estuday/courses').then((m) => m.CourseFormComponent),
-      },
-      {
-        path: 'courses/:courseId/modules',
-        loadComponent: () =>
-          import('@estuday/courses').then((m) => m.ModulesAdminComponent),
-      },
-      {
-        path: 'courses/:courseId/modules/new',
-        loadComponent: () =>
-          import('@estuday/courses').then((m) => m.ModuleFormComponent),
-      },
-      {
-        path: 'courses/:courseId/modules/:id/edit',
-        loadComponent: () =>
-          import('@estuday/courses').then((m) => m.ModuleFormComponent),
-      },
-      {
-        path: 'courses/:courseId/modules/:moduleId/lessons',
-        loadComponent: () =>
-          import('@estuday/courses').then((m) => m.LessonsAdminComponent),
-      },
-      {
-        path: 'courses/:courseId/modules/:moduleId/lessons/new',
-        loadComponent: () =>
-          import('@estuday/courses').then((m) => m.LessonFormComponent),
-      },
-      {
-        path: 'courses/:courseId/modules/:moduleId/lessons/:id/edit',
-        loadComponent: () =>
-          import('@estuday/courses').then((m) => m.LessonFormComponent),
+        children: coursesRoutes,
       },
     ],
   },

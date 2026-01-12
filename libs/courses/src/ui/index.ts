@@ -4,3 +4,4 @@
 
 export * from './course-card/course-card.component';
 export * from './data-table/data-table.component';
+export * from './base-form/base-form.component';

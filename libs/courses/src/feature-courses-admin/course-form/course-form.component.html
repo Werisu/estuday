@@ -8,7 +8,7 @@
     </div>
   </div>
 
-  <form [formGroup]="courseForm" (ngSubmit)="onSubmit()" class="form">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
     <div class="form-group">
       <label for="title">Título *</label>
       <input
@@ -94,7 +94,7 @@
       <button
         type="submit"
         class="submit-button"
-        [disabled]="courseForm.invalid || isProcessing()"
+        [disabled]="!isValid() || isProcessing()"
       >
         {{ isEditMode() ? 'Atualizar' : 'Criar' }} Curso
       </button>
