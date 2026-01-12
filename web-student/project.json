@@ -1,27 +1,26 @@
 {
-  "name": "estuday",
-  "$schema": "node_modules/nx/schemas/project-schema.json",
-  "includedScripts": [],
+  "name": "web-student",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
-  "sourceRoot": "./src",
+  "sourceRoot": "web-student/src",
   "tags": [],
   "targets": {
     "build": {
       "executor": "@angular/build:application",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/estuday",
-        "browser": "./src/main.ts",
-        "tsConfig": "tsconfig.app.json",
+        "outputPath": "dist/web-student",
+        "browser": "web-student/src/main.ts",
+        "tsConfig": "web-student/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": [
           {
             "glob": "**/*",
-            "input": "public"
+            "input": "web-student/public"
           }
         ],
-        "styles": ["./src/styles.scss"]
+        "styles": ["web-student/src/styles.scss"]
       },
       "configurations": {
         "production": {
@@ -52,35 +51,32 @@
       "executor": "@angular/build:dev-server",
       "configurations": {
         "production": {
-          "buildTarget": "estuday:build:production"
+          "buildTarget": "web-student:build:production"
         },
         "development": {
-          "buildTarget": "estuday:build:development"
+          "buildTarget": "web-student:build:development"
         }
       },
       "defaultConfiguration": "development"
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
-      "options": {
-        "lintFilePatterns": ["./src"]
-      }
+      "executor": "@nx/eslint:lint"
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectName}"],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "jest.config.app.ts",
-        "tsConfig": "tsconfig.spec.json"
+        "jestConfig": "web-student/jest.config.cts",
+        "tsConfig": "web-student/tsconfig.spec.json"
       }
     },
     "serve-static": {
       "continuous": true,
       "executor": "@nx/web:file-server",
       "options": {
-        "buildTarget": "estuday:build",
+        "buildTarget": "web-student:build",
         "port": 4200,
-        "staticFilePath": "dist/estuday/browser",
+        "staticFilePath": "dist/web-student/browser",
         "spa": true
       }
     }
