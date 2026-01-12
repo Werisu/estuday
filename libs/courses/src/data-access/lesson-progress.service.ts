@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '@estuday/auth';
 import {
   CourseProgress,
@@ -46,6 +46,20 @@ export class LessonProgressService {
     isLoading: false,
     error: null,
   });
+
+  constructor() {
+    // Observa mudanças no usuário autenticado usando effect
+    effect(() => {
+      const user = this.authService.currentUser();
+      if (user) {
+        // Carrega progresso quando usuário faz login ou já está autenticado
+        this.loadProgressFromStorage();
+      } else {
+        // Limpa progresso quando usuário faz logout
+        this.updateState({ lessonProgresses: [] });
+      }
+    });
+  }
 
   /**
    * Lista de progressos de aulas (computed).
@@ -162,6 +176,9 @@ export class LessonProgressService {
         isLoading: false,
       });
 
+      // Salva no localStorage
+      this.saveProgressToStorage(updatedProgresses);
+
       // Atualiza progresso do curso e módulo
       await this.updateCourseAndModuleProgress(lessonId);
 
@@ -233,6 +250,9 @@ export class LessonProgressService {
       }
 
       this.updateState({ lessonProgresses: updatedProgresses });
+
+      // Salva no localStorage
+      this.saveProgressToStorage(updatedProgresses);
     } catch (error) {
       console.error('Erro ao atualizar progresso:', error);
     }
@@ -340,6 +360,53 @@ export class LessonProgressService {
   private generateId(): string {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
+
+  /**
+   * Salva progresso no localStorage.
+   *
+   * @param progresses - Lista de progressos a serem salvos
+   */
+  private saveProgressToStorage(progresses: LessonProgress[]): void {
+    try {
+      const userId = this.authService.currentUser()?.id;
+      if (!userId) return;
+
+      const key = `lesson_progress_${userId}`;
+      localStorage.setItem(key, JSON.stringify(progresses));
+    } catch (error) {
+      console.error('Erro ao salvar progresso no localStorage:', error);
+    }
+  }
+
+  /**
+   * Carrega progresso do localStorage.
+   */
+  private loadProgressFromStorage(): void {
+    try {
+      const userId = this.authService.currentUser()?.id;
+      if (!userId) return;
+
+      const key = `lesson_progress_${userId}`;
+      const stored = localStorage.getItem(key);
+
+      if (stored) {
+        const progresses = JSON.parse(stored) as LessonProgress[];
+        // Converte datas de string para Date
+        const parsedProgresses = progresses.map((p) => ({
+          ...p,
+          lastAccessedAt: new Date(p.lastAccessedAt),
+          completedAt: p.completedAt ? new Date(p.completedAt) : undefined,
+          createdAt: new Date(p.createdAt),
+          updatedAt: new Date(p.updatedAt),
+        }));
+
+        this.updateState({ lessonProgresses: parsedProgresses });
+      }
+    } catch (error) {
+      console.error('Erro ao carregar progresso do localStorage:', error);
+    }
+  }
+
 
   /**
    * Delay para simular requisição HTTP.

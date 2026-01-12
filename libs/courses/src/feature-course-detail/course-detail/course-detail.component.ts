@@ -116,11 +116,8 @@ export class CourseDetailComponent implements OnInit {
   protected async completeLesson(lessonId: string): Promise<void> {
     try {
       await this.progressService.completeLesson(lessonId);
-      // Atualiza progresso do curso após marcar aula como concluída
-      const courseId = this.course()?.id;
-      if (courseId) {
-        await this.progressService.loadCourseProgress(courseId);
-      }
+      // O progresso é calculado automaticamente via computed signals
+      // Não é necessário chamar loadCourseProgress pois o cálculo é reativo
     } catch (error) {
       console.error('Erro ao marcar aula como concluída:', error);
     }
@@ -173,7 +170,7 @@ export class CourseDetailComponent implements OnInit {
       await this.coursesService.getCourseById(id);
       await this.modulesService.loadModulesByCourse(id);
       await this.modulesService.loadLessonsByCourse(id);
-      await this.progressService.loadCourseProgress(id);
+      // Progresso é calculado automaticamente baseado nas aulas concluídas
     } catch (error) {
       console.error('Erro ao carregar curso:', error);
     }
