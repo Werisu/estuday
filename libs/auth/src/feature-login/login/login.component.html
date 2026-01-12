@@ -1,13 +1,23 @@
-<div class="login-page">
-  <div class="login-container">
-    <div class="login-header">
-      <h1>EstuDay</h1>
-      <p>Faça login para continuar</p>
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 p-8"
+>
+  <div
+    class="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md"
+  >
+    <div class="text-center mb-8">
+      <h1
+        class="text-3xl font-bold mb-2 bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent"
+      >
+        EstuDay
+      </h1>
+      <p class="text-slate-500 text-sm">Faça login para continuar</p>
     </div>
 
     @if (errorMessage()) {
-      <div class="error-alert">
-        <p>{{ errorMessage() }}</p>
+      <div
+        class="bg-red-50 border border-red-200 rounded-lg p-3 mb-6"
+      >
+        <p class="text-red-600 text-sm m-0">{{ errorMessage() }}</p>
       </div>
     }
 
@@ -17,23 +27,35 @@
     />
 
     @if (isLoading()) {
-      <div class="loading-indicator">
-        <p>Entrando...</p>
+      <div class="text-center mt-4">
+        <p class="text-slate-500 text-sm">Entrando...</p>
       </div>
     }
 
-    <div class="login-info">
-      <p class="info-title">Credenciais de teste:</p>
-      <div class="credentials">
-        <div class="credential-item">
-          <strong>Admin:</strong> admin@estuday.com / 123456
+    <div class="mt-8 pt-8 border-t border-slate-200">
+      <p class="text-sm font-semibold text-slate-600 mb-3">
+        Credenciais de teste:
+      </p>
+      <div class="flex flex-col gap-2">
+        <div
+          class="text-xs text-slate-500 p-2 bg-slate-50 rounded"
+        >
+          <strong class="text-slate-800">Admin:</strong>
+          admin@estuday.com / 123456
           <br />
-          <small>Acesse via web-admin</small>
+          <small class="block mt-1 text-slate-400 text-[0.7rem]"
+            >Acesse via web-admin</small
+          >
         </div>
-        <div class="credential-item">
-          <strong>Aluno:</strong> student@estuday.com / 123456
+        <div
+          class="text-xs text-slate-500 p-2 bg-slate-50 rounded"
+        >
+          <strong class="text-slate-800">Aluno:</strong>
+          student@estuday.com / 123456
           <br />
-          <small>Acesse via web-student</small>
+          <small class="block mt-1 text-slate-400 text-[0.7rem]"
+            >Acesse via web-student</small
+          >
         </div>
       </div>
     </div>
