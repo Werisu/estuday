@@ -5,3 +5,4 @@
 export * from './courses.service';
 export * from './lesson-progress.service';
 export * from './modules.service';
+export * from './lessons.service';

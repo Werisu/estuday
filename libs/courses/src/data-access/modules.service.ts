@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { Lesson, Module } from '@estuday/shared';
+import { CreateModule, Lesson, Module, UpdateModule } from '@estuday/shared';
 
 /**
  * Estado de módulos e aulas.
@@ -155,6 +155,114 @@ export class ModulesService {
   }
 
   /**
+   * Cria um novo módulo.
+   * Em produção, faria uma chamada HTTP POST.
+   *
+   * @param moduleData - Dados do módulo a ser criado
+   * @returns Promise com módulo criado
+   */
+  async createModule(moduleData: CreateModule): Promise<Module> {
+    this.updateState({ isLoading: true, error: null });
+
+    try {
+      await this.delay(500);
+
+      const newModule: Module = {
+        ...moduleData,
+        id: this.generateId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const currentModules = this.stateSignal().modules;
+      this.updateState({
+        modules: [...currentModules, newModule],
+        isLoading: false,
+      });
+
+      return newModule;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Erro ao criar módulo';
+      this.updateState({ isLoading: false, error: errorMessage });
+      throw error;
+    }
+  }
+
+  /**
+   * Atualiza um módulo existente.
+   * Em produção, faria uma chamada HTTP PUT/PATCH.
+   *
+   * @param id - ID do módulo
+   * @param moduleData - Dados a serem atualizados
+   * @returns Promise com módulo atualizado
+   */
+  async updateModule(id: string, moduleData: UpdateModule): Promise<Module> {
+    this.updateState({ isLoading: true, error: null });
+
+    try {
+      await this.delay(500);
+
+      const currentModules = this.stateSignal().modules;
+      const moduleIndex = currentModules.findIndex((m) => m.id === id);
+
+      if (moduleIndex === -1) {
+        throw new Error('Módulo não encontrado');
+      }
+
+      const updatedModule: Module = {
+        ...currentModules[moduleIndex],
+        ...moduleData,
+        updatedAt: new Date(),
+      };
+
+      const updatedModules = [...currentModules];
+      updatedModules[moduleIndex] = updatedModule;
+
+      this.updateState({ modules: updatedModules, isLoading: false });
+
+      return updatedModule;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Erro ao atualizar módulo';
+      this.updateState({ isLoading: false, error: errorMessage });
+      throw error;
+    }
+  }
+
+  /**
+   * Remove um módulo.
+   * Em produção, faria uma chamada HTTP DELETE.
+   *
+   * @param id - ID do módulo
+   */
+  async deleteModule(id: string): Promise<void> {
+    this.updateState({ isLoading: true, error: null });
+
+    try {
+      await this.delay(300);
+
+      const currentModules = this.stateSignal().modules;
+      const filteredModules = currentModules.filter((m) => m.id !== id);
+
+      // Remove também as aulas do módulo
+      const currentLessons = this.stateSignal().lessons;
+      const filteredLessons = currentLessons.filter((l) => l.moduleId !== id);
+
+      this.updateState({
+        modules: filteredModules,
+        lessons: filteredLessons,
+        isLoading: false,
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Erro ao remover módulo';
+      this.updateState({ isLoading: false, error: errorMessage });
+      throw error;
+    }
+  }
+
+  /**
    * Limpa o estado de módulos e aulas.
    */
   clear(): void {
@@ -163,10 +271,11 @@ export class ModulesService {
 
   /**
    * Atualiza o estado de forma imutável.
+   * Método público para sincronização com outros services.
    *
    * @param updates - Atualizações parciais do estado
    */
-  private updateState(updates: Partial<ModulesState>): void {
+  updateState(updates: Partial<ModulesState>): void {
     this.stateSignal.update((current) => ({ ...current, ...updates }));
   }
 
@@ -309,6 +418,15 @@ export class ModulesService {
     }
 
     return lessons;
+  }
+
+  /**
+   * Gera um ID único (mockado).
+   *
+   * @returns ID gerado
+   */
+  private generateId(): string {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
 
   /**

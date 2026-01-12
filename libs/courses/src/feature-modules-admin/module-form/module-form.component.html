@@ -1,0 +1,99 @@
+<div class="module-form">
+  <div class="form-header">
+    <div>
+      <button type="button" class="back-button" (click)="cancel()">
+        ← Voltar
+      </button>
+      <h1>{{ isEditMode() ? 'Editar Módulo' : 'Novo Módulo' }}</h1>
+    </div>
+  </div>
+
+  <form [formGroup]="moduleForm" (ngSubmit)="onSubmit()" class="form">
+    <div class="form-group">
+      <label for="title">Título *</label>
+      <input
+        id="title"
+        type="text"
+        formControlName="title"
+        [class.error]="hasError('title')"
+        placeholder="Ex: Introdução ao Angular"
+      />
+      @if (hasError('title')) {
+        <span class="error-message">{{ getErrorMessage('title') }}</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="description">Descrição *</label>
+      <textarea
+        id="description"
+        formControlName="description"
+        rows="4"
+        [class.error]="hasError('description')"
+        placeholder="Descreva o módulo..."
+      ></textarea>
+      @if (hasError('description')) {
+        <span class="error-message">{{ getErrorMessage('description') }}</span>
+      }
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="order">Ordem *</label>
+        <input
+          id="order"
+          type="number"
+          formControlName="order"
+          min="1"
+          [class.error]="hasError('order')"
+        />
+        @if (hasError('order')) {
+          <span class="error-message">{{ getErrorMessage('order') }}</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="durationMinutes">Duração (minutos) *</label>
+        <input
+          id="durationMinutes"
+          type="number"
+          formControlName="durationMinutes"
+          min="1"
+          [class.error]="hasError('durationMinutes')"
+        />
+        @if (hasError('durationMinutes')) {
+          <span class="error-message">{{ getErrorMessage('durationMinutes') }}</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status *</label>
+        <select
+          id="status"
+          formControlName="status"
+          [class.error]="hasError('status')"
+        >
+          <option value="draft">Rascunho</option>
+          <option value="published">Publicado</option>
+          <option value="archived">Arquivado</option>
+        </select>
+        @if (hasError('status')) {
+          <span class="error-message">{{ getErrorMessage('status') }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="cancel-button" (click)="cancel()">
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="submit-button"
+        [disabled]="moduleForm.invalid || isProcessing()"
+      >
+        {{ isEditMode() ? 'Atualizar' : 'Criar' }} Módulo
+      </button>
+    </div>
+  </form>
+</div>

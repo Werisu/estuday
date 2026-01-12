@@ -12,3 +12,6 @@ export * from './ui';
 // Features
 export * from './feature-course-detail';
 export * from './feature-course-list';
+export * from './feature-courses-admin';
+export * from './feature-modules-admin';
+export * from './feature-lessons-admin';
