@@ -1,0 +1,37 @@
+<div class="login-page">
+  <div class="login-container">
+    <div class="login-header">
+      <h1>EstuDay</h1>
+      <p>Faça login para continuar</p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="error-alert">
+        <p>{{ errorMessage() }}</p>
+      </div>
+    }
+
+    <app-login-form
+      (loginSubmit)="onLoginSubmit($event)"
+      [disabled]="isLoading()"
+    />
+
+    @if (isLoading()) {
+      <div class="loading-indicator">
+        <p>Entrando...</p>
+      </div>
+    }
+
+    <div class="login-info">
+      <p class="info-title">Credenciais de teste:</p>
+      <div class="credentials">
+        <div class="credential-item">
+          <strong>Admin:</strong> admin@estuday.com / 123456
+        </div>
+        <div class="credential-item">
+          <strong>Aluno:</strong> student@estuday.com / 123456
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -8,7 +8,8 @@
     "lib": ["es2020", "dom"],
     "baseUrl": ".",
     "paths": {
-      "@estuday/shared": ["libs/shared/src/index.ts"]
+      "@estuday/shared": ["libs/shared/src/index.ts"],
+      "@estuday/auth": ["libs/auth/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
