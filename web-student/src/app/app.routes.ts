@@ -26,6 +26,16 @@ export const appRoutes: Route[] = [
         loadComponent: () =>
           import('./features/home/home.component').then((m) => m.HomeComponent),
       },
+      {
+        path: 'courses',
+        loadComponent: () =>
+          import('@estuday/courses').then((m) => m.CourseListComponent),
+      },
+      {
+        path: 'courses/:id',
+        loadComponent: () =>
+          import('@estuday/courses').then((m) => m.CourseDetailComponent),
+      },
     ],
   },
 ];
